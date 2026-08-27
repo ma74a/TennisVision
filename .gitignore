@@ -1,5 +1,5 @@
 
-
+project.excalidraw
 output_videos/*
 !output_videos/.gitkeep
 tracker_stubs/*
