@@ -25,3 +25,7 @@ def main():
         )
 
     plot_losses(train_losses, val_losses)
+
+
+if __name__ == "__main__":
+    main()
