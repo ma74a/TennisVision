@@ -14,79 +14,90 @@ class BallTracker:
         that cause a problem so we solve this problem using 
         interpolation
         """
-        ball_positions = []
-        for detection in ball_detections:
+        ball_positions = [x.get(1,[]) for x in ball_detections]
+        # convert the list into pandas dataframe
+        df_ball_positions = pd.DataFrame(ball_positions,columns=['x1','y1','x2','y2'])
+
+        # interpolate the missing values
+        df_ball_positions = df_ball_positions.interpolate()
+        df_ball_positions = df_ball_positions.bfill()
+
+        ball_positions = [{1:x} for x in df_ball_positions.to_numpy().tolist()]
+
+        return ball_positions
+        # ball_positions = []
+        # for detection in ball_detections:
     
-            if detection:
-                bbox = list(detection.values())[0]
+        #     if detection:
+        #         bbox = list(detection.values())[0]
     
-                x1, y1, x2, y2 = bbox
+        #         x1, y1, x2, y2 = bbox
     
-                cx = (x1 + x2) / 2
-                cy = (y1 + y2) / 2
+        #         cx = (x1 + x2) / 2
+        #         cy = (y1 + y2) / 2
     
-                w = x2 - x1
-                h = y2 - y1
+        #         w = x2 - x1
+        #         h = y2 - y1
     
-                ball_positions.append([cx, cy, w, h])
+        #         ball_positions.append([cx, cy, w, h])
     
-            else:
-                ball_positions.append(None)
+        #     else:
+        #         ball_positions.append(None)
     
-        # Interpolate missing positions
-        for i in range(len(ball_positions)):
+        # # Interpolate missing positions
+        # for i in range(len(ball_positions)):
     
-            if ball_positions[i] is not None:
-                continue
+        #     if ball_positions[i] is not None:
+        #         continue
     
-            # Find previous detection
-            prev = i - 1
+        #     # Find previous detection
+        #     prev = i - 1
     
-            while prev >= 0 and ball_positions[prev] is None:
-                prev -= 1
+        #     while prev >= 0 and ball_positions[prev] is None:
+        #         prev -= 1
     
-            # Find next detection
-            next_ = i + 1
+        #     # Find next detection
+        #     next_ = i + 1
     
-            while next_ < len(ball_positions) and ball_positions[next_] is None:
-                next_ += 1
+        #     while next_ < len(ball_positions) and ball_positions[next_] is None:
+        #         next_ += 1
     
-            if prev >= 0 and next_ < len(ball_positions):
+        #     if prev >= 0 and next_ < len(ball_positions):
     
-                prev_pos = ball_positions[prev]
-                next_pos = ball_positions[next_]
+        #         prev_pos = ball_positions[prev]
+        #         next_pos = ball_positions[next_]
     
-                alpha = (i - prev) / (next_ - prev)
+        #         alpha = (i - prev) / (next_ - prev)
     
-                cx = prev_pos[0] + alpha * (next_pos[0] - prev_pos[0])
-                cy = prev_pos[1] + alpha * (next_pos[1] - prev_pos[1])
+        #         cx = prev_pos[0] + alpha * (next_pos[0] - prev_pos[0])
+        #         cy = prev_pos[1] + alpha * (next_pos[1] - prev_pos[1])
     
-                w = prev_pos[2] + alpha * (next_pos[2] - prev_pos[2])
-                h = prev_pos[3] + alpha * (next_pos[3] - prev_pos[3])
+        #         w = prev_pos[2] + alpha * (next_pos[2] - prev_pos[2])
+        #         h = prev_pos[3] + alpha * (next_pos[3] - prev_pos[3])
     
-                ball_positions[i] = [cx, cy, w, h]
+        #         ball_positions[i] = [cx, cy, w, h]
     
-        # Convert back to bounding boxes
-        result = []
+        # # Convert back to bounding boxes
+        # result = []
     
-        for pos in ball_positions:
+        # for pos in ball_positions:
     
-            if pos is None:
-                result.append({})
-                continue
+        #     if pos is None:
+        #         result.append({})
+        #         continue
     
-            cx, cy, w, h = pos
+        #     cx, cy, w, h = pos
     
-            x1 = cx - w / 2
-            y1 = cy - h / 2
-            x2 = cx + w / 2
-            y2 = cy + h / 2
+        #     x1 = cx - w / 2
+        #     y1 = cy - h / 2
+        #     x2 = cx + w / 2
+        #     y2 = cy + h / 2
     
-            result.append({
-                1: [x1, y1, x2, y2]
-            })
+        #     result.append({
+        #         1: [x1, y1, x2, y2]
+        #     })
     
-        return result
+        # return result
 
     def get_ball_shot_frame(self, ball_detections):
         """get the frames when the ball is getting hit"""
