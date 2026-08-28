@@ -16,6 +16,8 @@ def main():
     # mini court object
     mini_court = MiniCourt(video_frames[0])
 
+    
+
     players_detections = player_tracker.detect_frames(frames=video_frames,
                                                       read_from_stub=True,
                                                       stub_path="tracker_stubs/players_detections.pkl")
@@ -25,9 +27,22 @@ def main():
                                                           read_from_stub=True,
                                                           stub_path="tracker_stubs/ball_detections.pkl")
     ball_detections = ball_tracker.interpolate_ball_positions(ball_detections)
+    # # get the frames the ball is getting hit
+    # frames = ball_tracker.get_ball_shot_frame(ball_detections=ball_detections)
+    # print(f"frames: {frames}")
 
     # get keypoints
     keypoints = court_line_detector.predict_one_frame(image=video_frames[0])
+    players_detections = player_tracker.choose_and_filter_players(keypoints, players_detections)
+    # print(ball_detections)
+    # return
+
+    player_minicourt_detection, ball_minicourt_detection =  mini_court.convert_bounding_boxes_to_mini_court_coordinates(players_detections,
+                                                                ball_detections,
+                                                                keypoints)
+
+    # print(player_minicourt_detection)
+
 
     # just get the two players who play only
     players_detections = player_tracker.choose_and_filter_players(keypoints, players_detections)
@@ -41,6 +56,8 @@ def main():
 
     # draw mini court
     output_video_frames = mini_court.draw_mini_court(output_video_frames)
+    output_video_frames = mini_court.draw_points_on_mini_court(output_video_frames, player_minicourt_detection)
+    output_video_frames = mini_court.draw_points_on_mini_court(output_video_frames, ball_minicourt_detection, color=[0,255, 255])
 
     # Draw frame number at the top left corner in the frame
     for i, frame in enumerate(output_video_frames):
