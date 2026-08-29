@@ -99,7 +99,7 @@ class BallTracker:
     
         # return result
 
-    def get_ball_shot_frame(self, ball_detections):
+    def get_ball_shot_frames(self, ball_detections):
         """get the frames when the ball is getting hit"""
         ball_positions = [x.get(1,[]) for x in ball_detections]
         # convert the list into pandas dataframe
