@@ -9,3 +9,4 @@ from .bbox_utils import (
     measure_xy_distance
 )
 from .conversions import convert_pixel_distance_to_meters, convert_meters_to_pixel_distance
+from .player_stats_drawer_utils import draw_player_stats
